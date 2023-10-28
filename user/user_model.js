@@ -7,6 +7,7 @@ const userSchema = mongoose.Schema({
     cellphone : {type: String, required : true},
     address: {type: mongoose.Schema.Types.ObjectId, ref: 'address' },
     role : { type: String, enum: ['client', 'admin'], default: 'client' },
+    active : { type: Boolean, default: true },
 });
 
 export default mongoose.model('user', userSchema);
