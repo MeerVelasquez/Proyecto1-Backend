@@ -1,3 +1,4 @@
+import User from './user/user_model';
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -14,12 +15,20 @@ app.use(express.json());
 db.on("error", console.error.bind(console, "Error de conexión a la base de datos:"));
 
 db.once("open", async () => {
+  app.get('/usuarios', async (req, res) => {
+    try{
+        const user = await User.findById(req.params.id);
+       if (user && user.active){
+           res.status(200).json(user);
 
-    //Schema Restaurante
-    //Schema Usuario 
-    //Schema Pedido
-    //Schema Producto
+         }else{
+            res.status(404).json({message: 'User not found'});
+        }
+    }catch(error){
+        res.status(500).json({message: 'Error getting user'});
+    }
+}
+  );
+}
 
-    //No tener un delete como tal sino un estado de activo o inactivo
-
-});
+);
