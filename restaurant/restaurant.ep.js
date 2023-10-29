@@ -1,4 +1,4 @@
-import Restaurant from "./restaurant_model.js";
+
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -15,6 +15,18 @@ app.use(express.json());
 db.on("error", console.error.bind(console, "Error de conexión a la base de datos:"));
 
 db.once("open", async () => {
+
+
+ const restaurantSchema = mongoose.Schema({
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    address: { type: mongoose.Schema.Types.ObjectId, ref: 'address' },
+    category: {type : String , required : true},
+    active: {type: Boolean, default: true},
+});
+
+const Restaurant = mongoose.model('restaurant', restaurantSchema);
+
   //Create: El endpoint crea un restaurante en la base de datos con los datos enviados al backend
   
   app.post('/restaurantes', async (req, res) => {

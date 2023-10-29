@@ -1,4 +1,4 @@
-import User from './user_model.js';
+
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -15,6 +15,19 @@ app.use(express.json());
 db.on("error", console.error.bind(console, "Error de conexión a la base de datos:"));
 
 db.once("open", async () => {
+
+    const userSchema = mongoose.Schema({
+        email : { type : String, required : true},
+        name : {type : String, required : true},
+        password : {type: String, required : true,unique : true},
+        cellphone : {type: String, required : true},
+        address: {type: mongoose.Schema.Types.ObjectId, ref: 'address' },
+        role : { type: String, enum: ['client', 'admin'], default: 'client' },
+        active : { type: Boolean, default: true },
+      });
+    
+      // Crea el modelo de usuario
+      const User = mongoose.model('user', userSchema);
 
     //Create: El endpoint crea un usuario en la base de datos con los datos enviados al backend.
 
@@ -89,13 +102,6 @@ db.once("open", async () => {
             res.status(500).json({ message: 'Error al eliminar el usuario' });
         }
     });
-
-
-
-
-
-
-
 });
 
 
