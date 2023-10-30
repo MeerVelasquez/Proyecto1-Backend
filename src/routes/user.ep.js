@@ -1,37 +1,10 @@
+import User from '../models/user_model.js';
+import {Router} from 'express';
 
-const express = require('express');
-const app = express();
-const port = 3000;
-const mongoose = require("mongoose");
-
-// Configura la conexión a la base de datos
-mongoose.connect("mongodb://localhost/bdCP", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const db = mongoose.connection;
-app.use(express.json());
-db.on("error", console.error.bind(console, "Error de conexión a la base de datos:"));
-
-db.once("open", async () => {
-
-    const userSchema = mongoose.Schema({
-        email : { type : String, required : true},
-        name : {type : String, required : true},
-        password : {type: String, required : true,unique : true},
-        cellphone : {type: String, required : true},
-        address: {type: mongoose.Schema.Types.ObjectId, ref: 'address' },
-        role : { type: String, enum: ['client', 'admin'], default: 'client' },
-        active : { type: Boolean, default: true },
-      });
-    
-      // Crea el modelo de usuario
-      const User = mongoose.model('user', userSchema);
-
+const router = Router();
     //Create: El endpoint crea un usuario en la base de datos con los datos enviados al backend.
 
-    app.post('/usuarios', async (req, res) => {
+    router.post('/usuarios', async (req, res) => {
         try{
             const user = await User.create(req.body);
             res.status(200).json(user);
@@ -42,7 +15,7 @@ db.once("open", async () => {
 
     //Read: El endpoint retorna los datos del usuario que corresponden a las credenciales (correo y contraseña).
 
-    app.post('/usuarios/login', [body('email').isEmail(), body('password').isLength({ min: 6 })], async (req, res) => {
+    router.post('/usuarios/login', async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) {
@@ -55,11 +28,11 @@ db.once("open", async () => {
         }
         res.status(200).json({ message: 'Autenticación exitosa' });
       }
- );
+    );
 
  //Read: autenticación de usuario por id 
 
- app.get('/usuarios/:id', async (req, res) => {
+ router.get('/usuarios/:id', async (req, res) => {
     try{
         const user = await User.findById(req.params.id);
        if (user && user.active){
@@ -73,7 +46,7 @@ db.once("open", async () => {
 }
  );
  //Update: El endpoint actualiza los datos del usuario que corresponden al id
- app.put('/usuarios/:id', [body('email').isEmail(),body('name').isLength({ min: 6 }),body('password').isLength({ min: 6 }),body('cellphone').isLength({ min: 6 })], async (req, res) => {
+ router.put('/usuarios/:id', async (req, res) => {
       const userId = req.params.id;
       const userData = req.body;
 
@@ -91,7 +64,7 @@ db.once("open", async () => {
 
  //Delete: El endpoint “inhabilita” un usuario que corresponde a la id proveída.
 
-    app.delete('/usuarios/:id', async (req, res) => {
+    router.delete('/usuarios/:id', async (req, res) => {
         try{
             const user = await User.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
             if (!user) {
@@ -102,7 +75,9 @@ db.once("open", async () => {
             res.status(500).json({ message: 'Error al eliminar el usuario' });
         }
     });
-});
+
+
+export default router;
 
 
 

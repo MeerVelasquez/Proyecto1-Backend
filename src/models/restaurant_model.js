@@ -8,4 +8,4 @@ const restaurantSchema = mongoose.Schema({
     active: {type: Boolean, default: true},
 });
 
-export default mongoose.model('restaurant', userSchema);
+export default mongoose.model('restaurant', restaurantSchema);

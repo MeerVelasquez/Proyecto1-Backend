@@ -1,33 +1,11 @@
-const express = require('express');
-const app = express();
-const port = 3000;
-const mongoose = require("mongoose");
+import Product from '../models/product_model.js';
+import {Router} from 'express';
 
-
-mongoose.connect("mongodb://localhost/bdCP", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const db = mongoose.connection;
-app.use(express.json());
-db.on("error", console.error.bind(console, "Error de conexión a la base de datos:"));
-
-db.once("open", async () => {
-
-    const productSchema = mongoose.Schema({
-        name: { type: String, required: true },
-        description: { type: String, required: true },
-        restaurant: { type: mongoose.Schema.Types.ObjectId, ref: 'restaurant' },
-        price: { type: Number, required: true },
-        active: {type: Boolean, default: true},
-     });
-    
-    const Product = mongoose.model('product', productSchema);
+const router = Router();
 
     //Create: El endpoint crea un producto en la base de datos con los datos enviados al backend
 
-    app.post('/productos', async (req, res) => {
+    router.post('/productos', async (req, res) => {
         try{
             const product = await Product.create(req.body);
             res.status(200).json(product);
@@ -37,7 +15,7 @@ db.once("open", async () => {
 
     //Read (unidad) El endpoint retorna los datos del producto que corresponde a la id proveída. 
 
-    app.get('/productos/:id', async (req, res) => {
+    router.get('/productos/:id', async (req, res) => {
         try{
             const product = await Product.findById(req.params.id);
             res.status(200).json(product);
@@ -47,7 +25,7 @@ db.once("open", async () => {
 
     //Read (lista):  El endpoint retorna los datos de los productos que correspondan a el restaurante y/o categoría proveída.
 
-    app.get('/productos', async (req, res) => {
+    router.get('/productos', async (req, res) => {
         try{
             const { category, name } = req.query;
             const filter = {};
@@ -71,7 +49,7 @@ db.once("open", async () => {
         });
 //Update El endpoint modifica los datos del producto que corresponde a la id proveída, usando los datos proveídos
 
-app.put('/productos/:id', async (req, res) => {
+router.put('/productos/:id', async (req, res) => {
     const productId = req.params.id;
     const productData = req.body;
     try {
@@ -89,7 +67,7 @@ app.put('/productos/:id', async (req, res) => {
   });
 
 //Delete: El endpoint cambia el estado del producto a inactivo.
-app.delete('/products/:id', async (req, res) => {
+router.delete('/products/:id', async (req, res) => {
     try{
         const product = await Product.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
         if (!product) {
@@ -102,4 +80,4 @@ app.delete('/products/:id', async (req, res) => {
 
 
 
-});
+export default router;
