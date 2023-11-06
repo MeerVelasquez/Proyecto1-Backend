@@ -1,5 +1,4 @@
 import User from '../models/user_model.js';
-import orderRouter from './order.ep.js';
 import {Router} from 'express';
 
 
@@ -31,6 +30,24 @@ const router = Router();
         res.status(200).json({ message: 'Autenticación exitosa' });
       }
     );
+
+
+    router.get('/', async (req, res) => {
+        try{
+           const {status} = req.query;
+           const filter = {};
+
+             if (status !== undefined) {
+                 filter.status = status;
+            }
+            const user = await User.find();
+            res.status(200).json(user);
+        }catch(error){
+
+            res.status(500).json({message: 'Error getting user'});
+
+        }
+    });
 
  //Read: autenticación de usuario por id 
 
@@ -78,7 +95,7 @@ const router = Router();
         }
     });
 
-router.use("/:id/pedidos", orderRouter);
+
 
 export default router;
 

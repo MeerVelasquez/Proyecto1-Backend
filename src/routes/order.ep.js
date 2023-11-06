@@ -1,12 +1,16 @@
 import Order from '../models/order_model.js';
 import {Router} from 'express';
+import User from '../models/user_model.js';
+import Restaurant from '../models/restaurant_model.js';
 
 const router = Router();
 
 // Create El endpoint crea un pedido de un usuario a un restaurante en la base de datos con los datos enviados al backend.
 
-router.post('/pedidos', async (req, res) => {
+router.post('/', async (req, res) => {
     try{
+        await User.findById(req.body.user);
+        await Restaurant.findById(req.body.restaurant);
         const order = await Order.create(req.body);
         res.status(200).json(order);
     }catch(error){
@@ -15,7 +19,7 @@ router.post('/pedidos', async (req, res) => {
 
 //Read (unidad) El endpoint retorna los datos del pedido que corresponde a la id proveída. 
 
-router.get('/pedidos/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
     try{
         const order = await Order.findById(req.params.id);
         res.status(200).json(order);
@@ -26,10 +30,10 @@ router.get('/pedidos/:id', async (req, res) => {
 // Read (cantidad): El endpoint retorna los datos de los pedidos realizados por el usuario 
 //proveído, enviados por el usuario proveído, pedidos a un 
 //restaurante proveído, y/o entre las fechas proveídas.
-
-router.get('/pedidos', async (req, res) => {
+//Read (cantidad) El endpoint retorna los datos de los pedidos enviados, pero sin aceptar.
+router.get('/', async (req, res) => {
     try{
-        const { user, restaurant} = req.query;
+        const { user, restaurant, status} = req.query;
         const filter = {};
     
         if (user) {
@@ -39,13 +43,15 @@ router.get('/pedidos', async (req, res) => {
         if (restaurant) {
           filter.restaurant = restaurant;
         }
+
+        if (status) {
+            filter.status = status;
+         }
+
+
     
     
         const orders = await Order.find(filter);
-        if (orders.length === 0) {
-          return res.status(404).json({ message: 'No se encontraron pedidos' });
-        }
-    
         res.status(200).json(orders);   
       }catch(error){
         res.status(500).json({ message: 'Error al buscar pedidos' });
@@ -53,22 +59,14 @@ router.get('/pedidos', async (req, res) => {
 
 // Read (cantidad) El endpoint retorna los datos de los pedidos enviados, pero sin aceptar.
 
-router.get('/pedidos/enviados', async (req, res) => {
-    try {
-        const pedidosEnviadosSinAceptar = await Order.find({ status: 'sent', active: true });
-        res.status(200).json(pedidosEnviadosSinAceptar);
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Hubo un error al obtener los pedidos enviados sin aceptar.' });
-      }
-});
+
 
 // Update: El endpoint modifica los datos del pedido que corresponde a la id 
 //proveída, usando los datos proveídos, a menos que este ya haya sido enviado
 
-router.put('/pedidos/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
     const pedidoId = req.params.id;
-  const nuevosDatos = req.body;
+    const nuevosDatos = req.body;
 
   try {
     const pedido = await Order.findById(pedidoId);
@@ -92,7 +90,7 @@ router.put('/pedidos/:id', async (req, res) => {
 
 // Delete El endpoint “inhabilita” un pedido que corresponde a la id proveída.
 
-router.delete('/pedidos/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try{
         const order = await Order.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
         if (!order) {

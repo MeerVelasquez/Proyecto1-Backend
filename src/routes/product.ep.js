@@ -5,7 +5,7 @@ const router = Router();
 
     //Create: El endpoint crea un producto en la base de datos con los datos enviados al backend
 
-    router.post('/productos', async (req, res) => {
+    router.post('/', async (req, res) => {
         try{
             const product = await Product.create(req.body);
             res.status(200).json(product);
@@ -15,7 +15,7 @@ const router = Router();
 
     //Read (unidad) El endpoint retorna los datos del producto que corresponde a la id proveída. 
 
-    router.get('/productos/:id', async (req, res) => {
+    router.get('/:id', async (req, res) => {
         try{
             const product = await Product.findById(req.params.id);
             res.status(200).json(product);
@@ -25,7 +25,7 @@ const router = Router();
 
     //Read (lista):  El endpoint retorna los datos de los productos que correspondan a el restaurante proveído.
 
-    router.get('/productos', async (req, res) => {
+    router.get('/', async (req, res) => {
         try{
             const { restaurant} = req.query;
             const filter = {};
@@ -47,7 +47,7 @@ const router = Router();
         });
 //Update El endpoint modifica los datos del producto que corresponde a la id proveída, usando los datos proveídos
 
-router.put('/productos/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
     const productId = req.params.id;
     const productData = req.body;
     try {
@@ -65,7 +65,7 @@ router.put('/productos/:id', async (req, res) => {
   });
 
 //Delete: El endpoint cambia el estado del producto a inactivo.
-router.delete('/productos/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try{
         const product = await Product.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
         if (!product) {

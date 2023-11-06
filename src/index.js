@@ -16,13 +16,13 @@ const db = mongoose.connection;
 
 db.on("error", console.error.bind(console, "Error de conexión a la base de datos:"));
 app.use(express.json());
-
+// app.use(express.bodyParser());
   
 
   app.use("/usuarios",userRouter);
-  app.use(productRouter);
-  app.use(restaurantRouter);
-  app.use(orderRouter);
+  app.use("/productos",productRouter);
+  app.use("/restaurantes",restaurantRouter);
+  app.use("/pedidos",orderRouter);
 
     app.get('/', (req, res) => {
         res.send('Bienvenido a PseudoRappi')

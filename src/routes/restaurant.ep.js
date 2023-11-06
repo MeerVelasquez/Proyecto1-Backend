@@ -5,7 +5,7 @@ const router = Router();
 
   //Create: El endpoint crea un restaurante en la base de datos con los datos enviados al backend
   
-  router.post('/restaurantes', async (req, res) => {
+  router.post('/', async (req, res) => {
     try{
         const restaurant = await Restaurant.create(req.body);
         res.status(200).json(restaurant);
@@ -14,9 +14,26 @@ const router = Router();
         console.log(error);
     }});
 
+    router.get('/', async (req, res) => {
+      try{
+         const {status} = req.query;
+         const filter = {};
+
+           if (status !== undefined) {
+               filter.status = status;
+          }
+          const restaurant = await Restaurant.find();
+          res.status(200).json(restaurant);
+      }catch(error){
+
+          res.status(500).json({message: 'Error getting restaurant'});
+
+      }
+  });
+
   //Read:  El endpoint retorna los datos del restaurante que corresponde a la id proveída.
 
-  router.get('/restaurantes/:id', async (req, res) => {
+  router.get('/:id', async (req, res) => {
     try{
         const restaurant = await Restaurant.findById(req.params.id);
        if (restaurant && restaurant.active){
@@ -30,7 +47,7 @@ const router = Router();
 
   //Read (Cantidad): Read (cantidad) El endpoint retorna los datos de los restaurantes que correspondana la categoría proveída y/o su nombre se asemeje a la búsqueda.
 
-  router.get('/restaurantes', async (req, res) => {
+  router.get('/', async (req, res) => {
     try{
       const { category, name } = req.query;
       const filter = {};
@@ -53,7 +70,7 @@ const router = Router();
   
     //Update El endpoint modifica los datos del restaurante que corresponde a la id proveída, usando los datos proveídos.
 
-    router.put('/restaurantes/:id', async (req, res) => {
+    router.put('/:id', async (req, res) => {
       const restaurantId = req.params.id;
       const restaurantData = req.body;
       try {
@@ -73,7 +90,7 @@ const router = Router();
 
     //Delete El endpoint “inhabilita” un restaurante que corresponde a la id proveída.
 
-    router.delete('/restaurantes/:id', async (req, res) => {
+    router.delete('/:id', async (req, res) => {
       try{
           const restaurant = await Restaurant.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
           if (!restaurant) {
