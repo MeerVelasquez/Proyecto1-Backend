@@ -23,27 +23,25 @@ const router = Router();
             res.status(500).json({message: 'Error getting product'});
         }});
 
-    //Read (lista):  El endpoint retorna los datos de los productos que correspondan a el restaurante y/o categoría proveída.
+    //Read (lista):  El endpoint retorna los datos de los productos que correspondan a el restaurante proveído.
 
     router.get('/productos', async (req, res) => {
         try{
-            const { category, name } = req.query;
+            const { restaurant} = req.query;
             const filter = {};
         
-            if (category) {
-              filter.category = category;
+            if (restaurant) {
+              filter.restaurant = restaurant;
             }
-      
-            if (name) {
-              filter.name = { $regex: name, $options: 'i' }; 
-            }
+           
             const products = await Product.find(filter);
             if (products.length === 0) {
               return res.status(404).json({ message: 'No se encontraron productos' });
             }
-            res.status(200).json(restaurants);   
+            res.status(200).json(products);   
           }catch(error){
             res.status(500).json({ message: 'Error al buscar productos' });
+            console.log(error);
         
         }
         });
@@ -53,7 +51,7 @@ router.put('/productos/:id', async (req, res) => {
     const productId = req.params.id;
     const productData = req.body;
     try {
-      const product = await Product.findByIdAndUpdate(productId, updateData, { new: true });
+      const product = await Product.findByIdAndUpdate(productId, productData, { new: true });
   
       if (!product) {
         return res.status(404).json({ message: 'Producto no encontrado' });
@@ -67,7 +65,7 @@ router.put('/productos/:id', async (req, res) => {
   });
 
 //Delete: El endpoint cambia el estado del producto a inactivo.
-router.delete('/products/:id', async (req, res) => {
+router.delete('/productos/:id', async (req, res) => {
     try{
         const product = await Product.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
         if (!product) {

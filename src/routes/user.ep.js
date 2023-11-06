@@ -1,10 +1,12 @@
 import User from '../models/user_model.js';
+import orderRouter from './order.ep.js';
 import {Router} from 'express';
+
 
 const router = Router();
     //Create: El endpoint crea un usuario en la base de datos con los datos enviados al backend.
 
-    router.post('/usuarios', async (req, res) => {
+    router.post('/', async (req, res) => {
         try{
             const user = await User.create(req.body);
             res.status(200).json(user);
@@ -15,14 +17,14 @@ const router = Router();
 
     //Read: El endpoint retorna los datos del usuario que corresponden a las credenciales (correo y contraseña).
 
-    router.post('/usuarios/login', async (req, res) => {
+    router.post('/login', async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) {
           return res.status(404).json({ message: 'Usuario no encontrado' });
         }
       
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = password === user.password;
         if (!isPasswordValid) {
           return res.status(401).json({ message: 'Contraseña incorrecta' });
         }
@@ -32,7 +34,7 @@ const router = Router();
 
  //Read: autenticación de usuario por id 
 
- router.get('/usuarios/:id', async (req, res) => {
+ router.get('/:id', async (req, res) => {
     try{
         const user = await User.findById(req.params.id);
        if (user && user.active){
@@ -46,7 +48,7 @@ const router = Router();
 }
  );
  //Update: El endpoint actualiza los datos del usuario que corresponden al id
- router.put('/usuarios/:id', async (req, res) => {
+ router.put('/:id', async (req, res) => {
       const userId = req.params.id;
       const userData = req.body;
 
@@ -64,7 +66,7 @@ const router = Router();
 
  //Delete: El endpoint “inhabilita” un usuario que corresponde a la id proveída.
 
-    router.delete('/usuarios/:id', async (req, res) => {
+    router.delete('/:id', async (req, res) => {
         try{
             const user = await User.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
             if (!user) {
@@ -76,6 +78,7 @@ const router = Router();
         }
     });
 
+router.use("/:id/pedidos", orderRouter);
 
 export default router;
 

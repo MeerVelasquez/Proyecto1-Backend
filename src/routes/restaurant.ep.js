@@ -11,6 +11,7 @@ const router = Router();
         res.status(200).json(restaurant);
     }catch(error){
         res.status(500).json({message: 'Error creating restaurant'});
+        console.log(error);
     }});
 
   //Read:  El endpoint retorna los datos del restaurante que corresponde a la id proveída.
@@ -56,7 +57,7 @@ const router = Router();
       const restaurantId = req.params.id;
       const restaurantData = req.body;
       try {
-        const restaurant = await Restaurant.findByIdAndUpdate(restaurantId, updateData, { new: true });
+        const restaurant = await Restaurant.findByIdAndUpdate(restaurantId, restaurantData, { new: true });
     
         if (!restaurant) {
           return res.status(404).json({ message: 'Restaurante no encontrado' });
@@ -65,6 +66,7 @@ const router = Router();
         res.status(200).json(restaurant);
       } catch (error) {
         res.status(500).json({ message: 'Error al actualizar el restaurante' });
+        
       }
 
     });
